@@ -82,7 +82,8 @@ watchEffect(() => {
 Like React's `useEffect` but the deps are detected by what's read.
 
 ### Common pitfalls
-- `watch(state, ...)` on a `reactive` only fires on identity change (assignment), not deep mutation. Use `{ deep: true }` or watch a getter.
+- **Watching a reactive object:** Before Vue 3.5, `watch(state, fn)` on a `reactive` was implicitly deep — it fired on any nested mutation. In Vue 3.5+ this was reverted and behavior aligned with refs: by default it only fires on identity change (assignment). Always pass `{ deep: true }` if you need deep, or watch a getter (`() => state.field`).
+- `watch(() => obj.field, fn)` watching a getter does NOT deep-watch the returned value by default — it only re-runs when the getter's return value changes (by `Object.is`). Pass `{ deep: true }` if you also want nested mutations of the returned object to trigger.
 - Watchers run after Vue's reactive batch — by default after the DOM update.
 - Stopping watchers: `const stop = watch(...); stop();` Or use lifecycle hooks.
 

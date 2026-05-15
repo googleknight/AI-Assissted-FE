@@ -236,20 +236,47 @@ Fixes:
 
 ## Concurrent React features (React 18)
 
-### useTransition
+This is what 99% of brownfield codebases use. Master these first — React 19 additions are below in their own section.
+
+### useTransition (React 18+)
 Marks state updates as non-urgent. React can interrupt them to keep the UI responsive. Pair with Suspense for graceful loading.
 
-### useDeferredValue
+```jsx
+const [isPending, startTransition] = useTransition();
+startTransition(() => setFilter(value)); // non-urgent
+```
+
+### useDeferredValue (React 18+)
 Returns a "lagging" version of a value. Same effect as debouncing without timer logic.
 
-### Suspense
+```jsx
+const deferredQuery = useDeferredValue(query);
+```
+
+### Suspense (React 18+)
 Declarative loading boundary.
 ```jsx
 <Suspense fallback={<Spinner />}>
   <SlowComponent />
 </Suspense>
 ```
-Originally for code splitting; with frameworks (Next.js RSC) it works for data too.
+Originally for code splitting; with frameworks (Next.js App Router, Relay, React Query in suspense mode) it works for data too.
+
+### What changed in React 19 (only if the codebase is on it — check `package.json`)
+
+Don't reach for these unless you've confirmed the repo's React version. If it's React 18, the patterns above are still the right answer.
+
+- **Async `startTransition`** — pass an async function; `isPending` stays true for its whole duration. Useful for form submit + state update in one transition.
+  ```jsx
+  startTransition(async () => { await save(); setSaved(true); });
+  ```
+- **`useDeferredValue(value, initialValue)`** — second arg is what the hook returns on first render before the real value is available. Helps with SSR.
+- **`useOptimistic`** — built-in optimistic state that auto-reverts when the wrapping transition resolves. Replaces a lot of hand-rolled rollback code.
+  ```jsx
+  const [optimisticName, setOptimisticName] = useOptimistic(name);
+  ```
+
+If you mention these in the interview, **say "if we're on React 19 — let me check the version"** rather than assuming.
 
 ---
 

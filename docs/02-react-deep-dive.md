@@ -166,6 +166,8 @@ setCount(c => c + 1);
 setCount(c => c + 1);
 ```
 
+In **React 18+ automatic batching** applies everywhere — event handlers, `setTimeout`, promises, native event listeners. Pre-18 only event handlers were batched. So in modern React this bug exists no matter where you make the updates — never assume `setTimeout` "unbatches" them.
+
 ### (c) Storing derived state
 
 ```jsx

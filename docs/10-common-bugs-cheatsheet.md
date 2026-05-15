@@ -363,6 +363,13 @@ NEXT_PUBLIC_DB_PASSWORD=... // public bundle
 
 // ❌ No revalidation after mutation
 // → stale data in cache after form submit
+// fix: revalidatePath('/users') or revalidateTag('users') inside the server action
+
+// ⚠️ Next 15: fetch defaults to no-store (was force-cache in Next 14)
+// → if code was written for Next 14 assuming caching is automatic, it's now
+//   making a fresh request every time. Add `cache: 'force-cache'` or
+//   `next: { revalidate: N }` per request, or `export const fetchCache = 'default-cache'`.
+fetch('/api/big-static-data'); // Next 14: cached. Next 15: not cached.
 ```
 
 ---

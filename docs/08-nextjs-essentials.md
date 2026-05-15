@@ -95,10 +95,10 @@ Server fetches the data with full server privileges; client takes over for inter
 `fetch` is patched by Next.js. The second arg controls caching:
 
 ```js
-// Static (default). Cached at build time, reused forever.
+// Persistent cache; reused forever until manually invalidated.
 fetch('/api', { cache: 'force-cache' });
 
-// SSR-equivalent. Fresh every request.
+// Fresh every request (SSR-equivalent).
 fetch('/api', { cache: 'no-store' });
 
 // ISR. Cached, revalidated every N seconds.
@@ -106,10 +106,24 @@ fetch('/api', { next: { revalidate: 60 } });
 
 // Tagged for on-demand revalidation.
 fetch('/api', { next: { tags: ['users'] } });
-// Later: import { revalidateTag } from 'next/cache'; revalidateTag('users');
+// Later, from a Server Action or route handler:
+//   import { revalidateTag } from 'next/cache';
+//   revalidateTag('users');
 ```
 
 This replaces the Pages Router's `getServerSideProps` / `getStaticProps` distinction. The caching strategy is **per-fetch**, not per-page.
+
+### ⚠️ Default cache changed in Next 15
+
+**Next 14:** `fetch` defaulted to `force-cache` (static / cached forever).
+**Next 15:** `fetch` defaults to `no-store` (dynamic / no cache) when no explicit option is set. Server Actions internally set the fetch cache to `default-no-store`.
+
+This is the single biggest source of "why is my data stale?" or "why is my app suddenly slower?" confusion when reading or migrating Next 14 → 15 code. To restore old behavior either:
+
+- Per request: `fetch(url, { cache: 'force-cache' })`
+- Per route/layout: `export const fetchCache = 'default-cache'`
+
+Interview talking point: if the codebase mixes Next 14 patterns assuming caching is automatic, that's a finding. Always check the Next major version in `package.json` before reasoning about cache behavior.
 
 ---
 
